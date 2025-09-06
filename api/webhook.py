@@ -22,7 +22,11 @@ def webhook():
         elif cmd == "/subject" and len(parts) > 1:
             handlers.handle_subject(chat_id, parts[1])
         elif cmd == "/upload" and len(parts) > 1:
-            handlers.handle_upload(chat_id, parts[1])
+            if len(parts) > 2:
+                # Direct YouTube link in same message
+                handlers.handle_upload(chat_id, parts[1], link=parts[2])
+            else:
+                handlers.handle_upload(chat_id, parts[1])
         elif cmd == "/pending":
             handlers.handle_pending(chat_id)
         elif cmd == "/approve" and len(parts) > 1:
@@ -30,7 +34,10 @@ def webhook():
         elif cmd == "/reject" and len(parts) > 1:
             handlers.handle_reject(chat_id, parts[1])
         else:
-            utils.send_message(chat_id, "Unknown command. Use /help.")
+            if not handlers.handle_followup(chat_id, text=text):
+                utils.send_message(chat_id, "Unknown command. Use /help.")
     elif document:
-        utils.send_message(chat_id, "❗ Please use /upload <CODE> before sending files.")
+        if not handlers.handle_followup(chat_id, document=document):
+            utils.send_message(chat_id, "❗ Please use /upload <CODE> before sending files.")
+
     return jsonify({"ok": True})

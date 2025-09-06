@@ -3,17 +3,20 @@ from bson import ObjectId
 import config
 
 client = MongoClient(config.MONGO_URI)
-db = client[config.DB_NAME]
+db = client.get_default_database()
 
 subjects_col = db["subjects"]
 notes_col = db["notes"]
+sessions_col = db["sessions"]
 
+# ---------- Subjects ----------
 def add_subject(code: str, name: str):
     subjects_col.update_one({"code": code}, {"$set": {"name": name}}, upsert=True)
 
 def list_subjects():
     return list(subjects_col.find({}))
 
+# ---------- Notes ----------
 def add_note(subject_code: str, link: str, note_type: str, uploader: int, status="pending"):
     note = {
         "subject_code": subject_code,
@@ -36,3 +39,18 @@ def approve(note_id: str):
 
 def reject(note_id: str):
     return notes_col.update_one({"_id": ObjectId(note_id)}, {"$set": {"status": "rejected"}})
+
+# ---------- Upload Sessions ----------
+def set_session(user_id, subject_code):
+    sessions_col.update_one(
+        {"user_id": user_id},
+        {"$set": {"subject_code": subject_code}},
+        upsert=True
+    )
+
+def get_session(user_id):
+    doc = sessions_col.find_one({"user_id": user_id})
+    return doc["subject_code"] if doc else None
+
+def clear_session(user_id):
+    sessions_col.delete_one({"user_id": user_id})
