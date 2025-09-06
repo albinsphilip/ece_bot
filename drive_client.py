@@ -23,15 +23,19 @@ def upload_file(file_content: bytes, filename: str, mime_type: str = "applicatio
         "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
         headers={"Authorization": f"Bearer {access_token}"},
         files=files,
+        timeout=240
     )
+    response.raise_for_status()
     file_info = response.json()
     file_id = file_info["id"]
 
     # Make file public
-    requests.post(
+    perm = requests.post(
         f"https://www.googleapis.com/drive/v3/files/{file_id}/permissions",
         headers={"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"},
         json={"role": "reader", "type": "anyone"},
+        timeout=60
     )
+    perm.raise_for_status()
 
     return f"https://drive.google.com/file/d/{file_id}/view"

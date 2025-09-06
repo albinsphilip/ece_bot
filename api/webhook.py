@@ -19,11 +19,18 @@ def webhook():
             handlers.handle_start(chat_id)
         elif cmd == "/help":
             handlers.handle_help(chat_id)
+        elif cmd == "/semester" and len(parts) > 1:
+            handlers.handle_semester(chat_id, parts[1])
+        elif cmd == "/syllabus" and len(parts) > 1:
+            handlers.handle_syllabus(chat_id, parts[1])
         elif cmd == "/subject" and len(parts) > 1:
             handlers.handle_subject(chat_id, parts[1])
+        elif cmd == "/pyq" and len(parts) > 1:
+            handlers.handle_pyq(chat_id, parts[1])
+        elif cmd == "/playlist" and len(parts) > 1:
+            handlers.handle_playlist(chat_id, parts[1])
         elif cmd == "/upload" and len(parts) > 1:
             if len(parts) > 2:
-                # Direct YouTube link in same message
                 handlers.handle_upload(chat_id, parts[1], link=parts[2])
             else:
                 handlers.handle_upload(chat_id, parts[1])
@@ -33,6 +40,8 @@ def webhook():
             handlers.handle_approve(chat_id, parts[1])
         elif cmd == "/reject" and len(parts) > 1:
             handlers.handle_reject(chat_id, parts[1])
+        elif cmd == "/gpa":
+            handlers.handle_gpa(chat_id, parts[1:])
         else:
             if not handlers.handle_followup(chat_id, text=text):
                 utils.send_message(chat_id, "Unknown command. Use /help.")
